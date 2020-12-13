@@ -110,20 +110,24 @@ class LoginController extends ApiController
                     'appversion' => $appversion,
                     'sysinfo' => $sysinfo
                 ];
-                $res = $this->userRep->store($insert);
+                $userinfo = $this->userRep->store($insert);
 
                 $token = genToken();
                 $sessionData = [
-                    'userid' => $res['id']
+                    'userid' => $userinfo['id']
                 ];
 
                 $this->userRep->set($token, $sessionData);
 
                 $loginLog = [
-                    'user_id' => $res['id'],
+                    'user_id' => $userinfo['id'],
+                    'username' => $userinfo['phone'],
+                    'nickname' => '',
+                    'state' => 1,
+                    'logintype' => 1,
+                    'devtype' => $userinfo['devtype'],
                     'ip' => ip2long(get_client_ip()),
-                    'login_at' => now(),
-                    'remark' => $username . '登录系统'
+                    'desc' => $userinfo['phone'] . '登录系统'
                 ];
                 $this->loginLogRep->store($loginLog);
 
@@ -192,10 +196,15 @@ class LoginController extends ApiController
 
         $loginLog = [
             'user_id' => $userinfo['id'],
-            'ip'      => ip2long(get_client_ip()),
-            'login_at' => now(),
-            'remark'  => $username . '登录系统'
+            'username' => $userinfo['phone'],
+            'nickname' => '',
+            'state' => 1,
+            'logintype' => 1,
+            'devtype' => $userinfo['devtype'],
+            'ip' => ip2long(get_client_ip()),
+            'desc' => $userinfo['phone'] . '登录系统'
         ];
+
         $this->loginLogRep->store($loginLog);
 
         $returnData = ['token' => $token, 'user_id' => $userinfo['id']];

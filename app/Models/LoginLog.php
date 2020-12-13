@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class LoginLog extends Model {
 
-    protected $table = 'pool_user_log';
+    protected $table = 'pool_user_login';
 
     protected $primarykey = 'id';
 
@@ -16,9 +16,13 @@ class LoginLog extends Model {
 
     protected $fillable = [
         'user_id',
+        'username',
+        'nickname',
+        'state',
         'ip',
-        'login_at',
-        'remark'
+        'logintype',
+        'devtype',
+        'desc'
     ];
 
 
