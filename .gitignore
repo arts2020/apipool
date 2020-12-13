@@ -1,0 +1,5 @@
+/.idea
+/vendor
+.env
+/public/poolAssets
+/config/sms.php

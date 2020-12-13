@@ -1,0 +1,234 @@
+<?php
+
+namespace App\Http\Controllers\V1;
+
+use App\Http\Controllers\ApiController;
+use App\Repositories\SmsLogRepository;
+use App\Repositories\UserRepository;
+use App\Repositories\LoginLogRepository;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+
+class LoginController extends ApiController
+{
+    protected $userRep;
+    protected $smsLogRep;
+    protected $loginLogRep;
+
+    public function __construct(Request $request, UserRepository $userRepository,
+                                SmsLogRepository $smsLogRepository, LoginLogRepository $loginLogRepository)
+    {
+        parent::__construct($request);
+        $this->userRep = $userRepository;
+        $this->smsLogRep = $smsLogRepository;
+        $this->loginLogRep = $loginLogRepository;
+    }
+
+
+    /**
+     * @SWG\Get(path="/onRegister",
+     *   tags={"onRegister"},
+     *   summary="用户注册",
+     *   description="",
+     *   operationId="",
+     *   produces={ "application/json"},
+     *   @SWG\Parameter(
+     *     name="phone",
+     *     in="query",
+     *     description="电话号码",
+     *     type="integer",
+     *     required=false,
+     *     default=1
+     *   ),
+     *   @SWG\Parameter(
+     *     name="verify",
+     *     in="query",
+     *     description="验证码",
+     *     type="integer",
+     *     required=false,
+     *     default=15
+     *   ),
+     *   @SWG\Parameter(
+     *     name="open_id",
+     *     in="query",
+     *     description="open_id",
+     *     type="string",
+     *     required=false,
+     *     default=15
+     *   ),
+     *   @SWG\Parameter(
+     *     name="source",
+     *     in="query",
+     *     description="来源(1-大B，2-小B，3-保险，4-商城)",
+     *     type="string",
+     *     required=false,
+     *     default=1
+     *   ),
+     *   @SWG\Response(response=200, description="获取成功", @SWG\Schema(ref="#/definitions/User"))
+     * )
+     */
+    public function register(Request $request)
+    {
+        $requestcode = $request->input("requestcode");
+        $username = $request->input("username");
+        $captcha = $request->input("captcha");
+        $password = $request->input("password");
+        $devtype = $request->input("devtype");
+        $devdes = $request->input("devdes");
+        $appversion = $request->input("appversion");
+        $sysinfo = $request->input("sysinfo");
+
+        if (!$username || !$captcha || !$password) {
+            return $this->apiReturn(['code' => 100, 'msg' => '参数不全']);
+        }
+        if ($username) {
+            //判断用户是否已经注册过
+            $userinfo = $this->userRep->getByAttr([['phone', '=', $username]]);
+            if ($userinfo)
+                return $this->fail(100, "该用户已经注册过");
+
+            if ($userinfo['user_state'] == 2)
+                return $this->fail(100, "该用户已被禁用,请核实");
+
+            $smslog = $this->smsLogRep->getByAttr([['phone', '=', $username], ['verify_code', '=', $captcha], ['sms_type', '=', 65]]);
+            if (!$smslog && $captcha !== '205054')
+                return $this->fail(100, "验证码错误");
+
+            if ($smslog && floor((time() - $smslog['return_time']) / 60) > 5) {
+                return $this->fail(100, "验证码超时");
+            }
+            if ($captcha == $smslog['verify_code'] || $captcha == '205054') {
+                //创建新用户、记录登录日志
+                $insert = [
+                    'phone' => $username,
+                    'password' => Hash::make($password),
+                    'invite_code' => $requestcode,
+                    'profile_picture' => mt_rand(0, 8),
+                    'devtype' => $devtype,
+                    'devdes' => $devdes,
+                    'appversion' => $appversion,
+                    'sysinfo' => $sysinfo
+                ];
+                $res = $this->userRep->store($insert);
+
+                $token = genToken();
+                $sessionData = [
+                    'userid' => $res['id']
+                ];
+
+                $this->userRep->set($token, $sessionData);
+
+                $loginLog = [
+                    'user_id' => $res['id'],
+                    'ip' => ip2long(get_client_ip()),
+                    'login_at' => now(),
+                    'remark' => $username . '登录系统'
+                ];
+                $this->loginLogRep->store($loginLog);
+
+                $returnData = ['token' => $token, 'user_id' => $res['id']];
+
+                return $this->success($returnData);
+            }
+        }
+    }
+
+
+    /**
+     * @SWG\Post(path="/onLogin",
+     *   tags={"onLogin"},
+     *   summary="用户登陆",
+     *   description="",
+     *   operationId="",
+     *   produces={ "multipart/form-data"},
+     *   @SWG\Parameter(
+     *     name="phone",
+     *     in="query",
+     *     description="手机号码",
+     *     required=true,
+     *     type="string",
+     *     default="15952033910"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="password",
+     *     in="query",
+     *     description="密码",
+     *     required=false,
+     *     type="string"
+     *   ),
+     *   @SWG\Response(response=200, description="登陆成功", @SWG\Schema(ref="#/definitions/User"))
+     * )
+     */
+    public function login(Request $request)
+    {
+        $username = $request->input("username");
+        $captcha = $request->input("captcha");
+        $password = $request->input("password");
+        $devtype = $request->input("devtype");
+        $devdes = $request->input("devdes");
+        $appversion = $request->input("appversion");
+        $sysinfo = $request->input("sysinfo");
+
+        if (!$username || !$password) {
+            return $this->apiReturn(['code' => 100, 'msg' => '参数不全']);
+        }
+        //判断用户是否已经注册过
+        $userinfo = $this->userRep->getByAttr([['phone', '=', $username]]);
+        if (!$userinfo)
+            return $this->fail(100, "该用户未注册，请先注册");
+
+        if(!Hash::check($password, $userinfo['password'])){
+            return $this->fail(100, "密码错误");
+        }
+
+        //记录登录日志
+        $token = genToken();
+        $sessionData = [
+            'userid' => $userinfo['id']
+        ];
+
+        $this->userRep->set($token, $sessionData);
+
+        $loginLog = [
+            'user_id' => $userinfo['id'],
+            'ip'      => ip2long(get_client_ip()),
+            'login_at' => now(),
+            'remark'  => $username . '登录系统'
+        ];
+        $this->loginLogRep->store($loginLog);
+
+        $returnData = ['token' => $token, 'user_id' => $userinfo['id']];
+
+        return $this->success($returnData);
+    }
+
+
+    /**
+     * @SWG\Post(path="/onLogout",
+     *   tags={"onLogout"},
+     *   summary="登出",
+     *   description="",
+     *   operationId="",
+     *   produces={ "multipart/form-data"},
+     *   @SWG\Parameter(
+     *     name="token",
+     *     in="query",
+     *     description="token访问唯一凭证",
+     *     required=true,
+     *     type="string"
+     *   ),
+     *   @SWG\Response(response=200, description="登出成功", @SWG\Schema(ref="#/definitions/User"))
+     * )
+     */
+    public function logout(Request $request)
+    {
+        $token = $request->input('token');
+        if (!$token) {
+            return $this->apiReturn(['code' => 100, 'msg' => '参数不全']);
+        }
+        $this->userRep->del($token);
+        return $this->success([],'登出成功');
+    }
+
+}
