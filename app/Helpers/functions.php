@@ -265,3 +265,19 @@ if (! function_exists('now')) {
         return Carbon::now($tz);
     }
 }
+
+
+if (!function_exists('objToArr')) {
+    function objToArr($array)
+    {
+        if (is_object($array)) {
+            $array = (array)$array;
+        }
+        if (is_array($array)) {
+            foreach ($array as $key => $value) {
+                $array[$key] = objToArr($value);
+            }
+        }
+        return $array;
+    }
+}

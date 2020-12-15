@@ -10,6 +10,12 @@ use Illuminate\Http\Request;
 class SmsController extends ApiController
 {
 
+    public function __construct(Request $request,SmsService $smsService)
+    {
+        parent::__construct($request);
+        $this->smsService = $smsService;
+    }
+
     /**
      * @SWG\Post(path="/onGetCaptcha",
      *   tags={"onGetCaptcha"},
@@ -42,8 +48,7 @@ class SmsController extends ApiController
         $phone = $request->input('phonenumber');
         $sendType = $request->input('smstype');
 
-        $smsLogic = new SmsService();
-        $msg = $smsLogic->sendCode($phone, $sendType);
+        $msg = $this->smsService->sendCode($phone, $sendType);
 
         return $this->apiReturn($msg);
     }
