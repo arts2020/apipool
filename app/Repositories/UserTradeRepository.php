@@ -1,30 +1,25 @@
 <?php
-
 namespace App\Repositories;
 
-
-use App\Http\Services\OrderService;
-use App\Http\Services\SmsService;
-use Carbon\Carbon;
+use App\Models\UserTrade;
 use App\Repositories\Traits\BaseRepository;
-use App\Models\Order;
 
-class OrderRepository
+class UserTradeRepository
 {
     use BaseRepository;
 
     protected $model;
 
-    public function __construct(Order $order)
+    public function __construct(UserTrade $model)
     {
-        $this->model = $order;
+        $this->model = $model;
     }
 
     /**
      * 创建
      *
      * @param array $input
-     * @return \App\Models\Order
+     * @return \App\Models\UserTrade
      */
     public function store($input)
     {
@@ -36,7 +31,7 @@ class OrderRepository
      *
      * @param int $id
      * @param array $input
-     * @return \App\Models\Order
+     * @return \App\Models\UserTrade
      */
     public function update($id, $input)
     {
@@ -47,7 +42,7 @@ class OrderRepository
     /**
      * 保存
      *
-     * @param Order $order
+     * @param UserTrade $order
      * @param  $input
      * @return
      */
@@ -58,24 +53,13 @@ class OrderRepository
         return $model;
     }
 
-    /**
-     * 获取订单列表数据
-     * @param $userId
-     */
-    public function getOrderLists($userId,$pageRows)
-    {
-        $result = $this->model->with(['orderProduct'])
-            ->Userid($userId)
-            ->latest()
-            ->paginate($pageRows);
-        return $result;
-    }
 
-    /*
-     * 获取订单详情
+    /**
+     * 获取收益列表
+     * @param $asset
      */
-    public function getOrderDetail($order_id)
+    public function getTradeList($user_id,$asset)
     {
-        return $this->model->with(['orderProduct'])->find($order_id);
+        return $this->model->Asset($asset)->Userid($user_id)->State(1)->get();
     }
 }

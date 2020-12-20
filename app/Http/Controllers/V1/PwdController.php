@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\V1;
 
-use App\Http\Controllers\ApiController;
 use App\Repositories\SmsLogRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
 
 class PwdController extends ApiController
 {
@@ -23,8 +20,8 @@ class PwdController extends ApiController
     }
 
     /**
-     * @SWG\Get(path="/onForget",
-     *   tags={"onForget"},
+     * @SWG\Get(path="/forget",
+     *   tags={"forget"},
      *   summary="忘记密码",
      *   description="",
      *   operationId="",
@@ -94,8 +91,8 @@ class PwdController extends ApiController
 
 
     /**
-     * @SWG\Get(path="/ChangePassword",
-     *   tags={"ChangePassword"},
+     * @SWG\Get(path="/changePassword",
+     *   tags={"changePassword"},
      *   summary="修改密码",
      *   description="",
      *   operationId="",
@@ -146,8 +143,8 @@ class PwdController extends ApiController
 
 
     /**
-     * @SWG\Get(path="/CapitalPassword",
-     *   tags={"CapitalPassword"},
+     * @SWG\Get(path="/capitalPassword",
+     *   tags={"capitalPassword"},
      *   summary="设置资金密码",
      *   description="",
      *   operationId="",
@@ -182,8 +179,8 @@ class PwdController extends ApiController
 
 
     /**
-     * @SWG\Get(path="/ChangeCapitalPassword",
-     *   tags={"ChangeCapitalPassword"},
+     * @SWG\Get(path="/changeCapitalPassword",
+     *   tags={"changeCapitalPassword"},
      *   summary="修改资金密码",
      *   description="",
      *   operationId="",

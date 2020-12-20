@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
 use App\Models\Base;
-use App\Models\Hospital;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
-
 
 class ApiController extends Controller
 {
@@ -28,19 +27,12 @@ class ApiController extends Controller
         }
     }
 
-    public $returnData = [
-        'code' => '200',
-        'msg' => '',
-        'data' => '',
-    ];
-
     /**
      * 成功返回消息
      * @param string $code
      * @param string $msg
      * @param string $data
      * @return array
-     * @author alan
      */
     public function success($data = [], $msg = '获取成功')
     {
@@ -58,7 +50,6 @@ class ApiController extends Controller
      * @param string $msg
      * @param string $data
      * @return array
-     * @author alan
      */
     public function fail($code = '100', $msg = '获取失败', $data = '')
     {

@@ -23,37 +23,62 @@ $pool = [
 
 
 $app->group($pool, function () use ($app) {
-
     # ------------------ 短信验证 ------------------------
-    $app->post('/onGetCaptcha', 'SmsController@sendCode');
+    $app->post('/getCaptcha', 'SmsController@sendCode');
 
     # ------------------ 登录注册 ------------------------
-    $app->post('/onRegister', 'LoginController@register');
-    $app->post('/onLogin', 'LoginController@login');
-    $app->post('/onLogout', 'LoginController@logout');
+    $app->post('/register', 'LoginController@register');
+    $app->post('/login', 'LoginController@login');
+    $app->post('/logout', 'LoginController@logout');
 
     # ------------------ 商品模块 ------------------------
+    $app->post('/getProductList', 'ProductController@getProductList');
 
+    # ------------------ 币价行情 ------------------------
+    $app->post('/getAssetprice', 'AssetPriceController@getAssetprice');
 
+    # ------------------ 公告查询 ------------------------
+    $app->post('/getNotice', 'NoticeController@getNoticeList');
+    $app->post('/getNoticeInfo', 'NoticeController@getNoticeInfo');
+
+    # ------------------ 通知查询 ------------------------
+    $app->post('/getNotify', 'NotifyController@getNotifyList');
 
 
     $app->group(['middleware' => 'access'], function () use ($app) {
-
         # ------------------ 账密 ------------------------
-        $app->post('/onForget', 'PwdController@forgetPassword');
-        $app->post('/ChangePassword', 'PwdController@changePassword');
-        $app->post('/CapitalPassword', 'PwdController@capitalPassword');
-        $app->post('/ChangeCapitalPassword', 'PwdController@changeCapitalPassword');
-
+        $app->post('/forget', 'PwdController@forgetPassword');
+        $app->post('/changePassword', 'PwdController@changePassword');
+        $app->post('/capitalPassword', 'PwdController@capitalPassword');
+        $app->post('/changeCapitalPassword', 'PwdController@changeCapitalPassword');
 
         # ------------------ 个人中心 ------------------------
-        $app->post('/GetUserInfo', 'UserCenterController@getUserInfo');
-        $app->post('/Authentication', 'UserCenterController@authentication');
+        $app->post('/getUserInfo', 'UserCenterController@getUserInfo');
+        $app->post('/authentication', 'UserCenterController@authentication');
 
+        # ------------------ 商品模块 ------------------------
+        $app->post('/getProductInfo', 'ProductController@getProductInfo');
 
         # ------------------ 订单模块 ------------------------
+        $app->post('/addOrderInfo', 'OrderController@add');
+        $app->post('/getOrderByUid', 'OrderController@getOrders');
+        $app->post('/getOrderById', 'OrderController@getOrderInfo');
 
+        # ------------------ 支付 ------------------------
+        $app->post('/payment', 'PayController@payment');
 
+        # ------------------ 我的算力 ------------------------
+        $app->post('/getPower', 'UserPowerController@getPower');
+
+        # ------------------ 我的收益 ------------------------
+        $app->post('/getMyProfit', 'UserProfitController@getMyProfit');
+        $app->post('/getProfitList', 'UserProfitController@getProfitList');
+
+        # ------------------ 我的钱包 ------------------------
+        $app->post('/getMyAsset', 'UserAssetController@getMyAsset');
+        $app->post('/getTransferList', 'UserAssetController@getTransferList');
+        $app->post('/transfer', 'UserAssetController@transfer');
+//        $app->post('/recharge', 'UserAssetController@recharge');
 
     });
 

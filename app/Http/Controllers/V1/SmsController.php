@@ -1,11 +1,8 @@
 <?php
-
 namespace App\Http\Controllers\V1;
 
-use App\Http\Controllers\ApiController;
 use App\Http\Services\SmsService;
 use Illuminate\Http\Request;
-
 
 class SmsController extends ApiController
 {
@@ -17,8 +14,8 @@ class SmsController extends ApiController
     }
 
     /**
-     * @SWG\Post(path="/onGetCaptcha",
-     *   tags={"onGetCaptcha"},
+     * @SWG\Post(path="/getCaptcha",
+     *   tags={"getCaptcha"},
      *   summary="发送验证码",
      *   description="",
      *   operationId="",

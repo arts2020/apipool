@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Http\Controllers\ApiController;
+
 use App\Repositories\SmsLogRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\LoginLogRepository;
@@ -27,8 +27,8 @@ class LoginController extends ApiController
 
 
     /**
-     * @SWG\Get(path="/onRegister",
-     *   tags={"onRegister"},
+     * @SWG\Get(path="/register",
+     *   tags={"register"},
      *   summary="用户注册",
      *   description="",
      *   operationId="",
@@ -131,7 +131,7 @@ class LoginController extends ApiController
                 ];
                 $this->loginLogRep->store($loginLog);
 
-                $returnData = ['token' => $token, 'user_id' => $res['id']];
+                $returnData = ['token' => $token, 'user_id' => $userinfo['id']];
 
                 return $this->success($returnData);
             }
@@ -140,8 +140,8 @@ class LoginController extends ApiController
 
 
     /**
-     * @SWG\Post(path="/onLogin",
-     *   tags={"onLogin"},
+     * @SWG\Post(path="/login",
+     *   tags={"login"},
      *   summary="用户登陆",
      *   description="",
      *   operationId="",
@@ -214,8 +214,8 @@ class LoginController extends ApiController
 
 
     /**
-     * @SWG\Post(path="/onLogout",
-     *   tags={"onLogout"},
+     * @SWG\Post(path="/logout",
+     *   tags={"logout"},
      *   summary="登出",
      *   description="",
      *   operationId="",

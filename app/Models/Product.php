@@ -1,82 +1,63 @@
 <?php
-/**
- * 产品
- * @author: alan
- * @Date: 17/5/2
- */
 namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="Product"))
  */
-class Product extends Base
+class Product extends Model
 {
 
-    protected $table = 'product';
+    protected $table = 'pool_product_info';
 
     protected $primarykey = 'id';
+    public $timestamps = true;
+    protected $appends = ['status_text','begin_at'];
 
-    public $mp_is_hot = [
-        1 => '是',
-        0 => '否',
-    ];
-
-    public $mp_is_show = [
-        1 => '是',
-        2 => '否'
-    ];
-
-    public $mp_medicals = [
-        1 => '高血压',
-        2 => '高血糖',
-        3 => '血蛋白偏高',
-        4 => '贫血',
-        5 => '营养不良',
-        6 => '恶性肿瘤',
-        7 => '无',
-    ];
-
-    public $mp_is_follow = [
-        1 => '是',
-        2 => '否'
-    ];
-
-    public $mp_from_nurse_page = [
-        1 => '是',
-        2 => '否',
-    ];
-
-    public function category()
+    /**
+     * 限制查找某分类的数据
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeAsset($query,$asset)
     {
-        return $this->hasOne('\App\Models\ProductCategory', 'id', 'category_id');
-    }
-
-    public function items()
-    {
-        return $this->hasMany('\App\Models\ProductItems', 'id');
-    }
-
-    public function payment()
-    {
-        return $this->hasOne('\App\Models\ProductPayment', 'product_id', 'id');
-    }
-
-    public function giveService()
-    {
-        return $this->hasMany('\App\Models\GiveService', 'product_id', 'id');
-    }
-
-    public function subPrice()
-    {
-        return $this->hasMany('\App\Models\ProductSubPrice', 'product_id', 'id');
+        return $query->where('asset',$asset);
     }
 
     /**
-     * 获取治疗费关联数据
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany|
+     * 限制查找未下架的数据
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function treatment()
+    public function scopeState($query)
     {
-        return $this->belongsToMany(ProductTreatmentFee::class, 'product_treatment_mid', 'product_id', 'treatment_id');
+        return $query->where('state', '<>', 2);
     }
+
+    public function getStatusTextAttribute()
+    {
+        $status_text = '未开始';
+        if ($this->attributes['begintime'] < now())
+            $status_text = '进行中';
+
+        return $status_text;
+    }
+
+    /**
+     * 动态格式化时间戳
+     */
+    public function getBeginAtAttribute()
+    {
+        return \Carbon\Carbon::parse($this->attributes['begintime'])->toDateString();
+    }
+    /**
+     * 获取商品所属分类
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function type()
+    {
+        return $this->belongsTo(ProductType::class, 'asset', 'asset');
+    }
+
 }

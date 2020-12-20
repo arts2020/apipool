@@ -50,7 +50,8 @@ class SmsService
             $this->smsLogRep->store($log);
             return ['code' => 200, 'msg' => $response['Message']];
         } else {
-            return ['code' => 102, 'msg' => $response['Message']];
+//            return ['code' => 102, 'msg' => $response['Message']];
+            return ['code' => 102, 'msg' => '验证码获取失败，请稍后再试'];
         }
 
     }

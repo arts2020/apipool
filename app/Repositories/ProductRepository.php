@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use App\Models\Product;
+use App\Repositories\Traits\BaseRepository;
 
 class ProductRepository
 {
@@ -15,11 +16,11 @@ class ProductRepository
     }
 
     /**
-     * 返回产品下的治疗费数据
-     * @param $productId
+     * 获取分类下的产品列表
+     * @param $asset
      */
-    public function getTreatmentList($productId)
+    public function getProductList($asset)
     {
-        return $this->model->with('treatment')->find($productId)->treatment??[];
+        return $this->model->Asset($asset)->State()->get();
     }
 }

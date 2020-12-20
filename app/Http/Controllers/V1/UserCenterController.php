@@ -1,8 +1,6 @@
 <?php
-
 namespace App\Http\Controllers\V1;
 
-use App\Http\Controllers\ApiController;
 use App\Repositories\SmsLogRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
@@ -23,8 +21,8 @@ class UserCenterController extends ApiController
     }
 
     /**
-     * @SWG\Get(path="/GetUserInfo",
-     *   tags={"GetUserInfo"},
+     * @SWG\Get(path="/getUserInfo",
+     *   tags={"getUserInfo"},
      *   summary="获取个人信息",
      *   description="",
      *   operationId="",
@@ -58,8 +56,8 @@ class UserCenterController extends ApiController
 
 
     /**
-     * @SWG\Get(path="/Authentication",
-     *   tags={"Authentication"},
+     * @SWG\Get(path="/authentication",
+     *   tags={"authentication"},
      *   summary="身份认证",
      *   description="",
      *   operationId="",

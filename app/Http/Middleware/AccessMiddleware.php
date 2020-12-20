@@ -29,6 +29,8 @@ class AccessMiddleware
             if(intval($sessionData['userid']) == 0){
                 return response()->json(['code'=>-100,'msg'=>'token错误']);
             }
+        }else{
+            return response()->json(['code'=>100,'msg'=>'缺少token']);
         }
             
         return $next($request);

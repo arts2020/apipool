@@ -4,7 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @SWG\Definition(type="object", @SWG\Xml(name="SysSmsLog"))
+ * @SWG\Definition(type="object", @SWG\Xml(name="LoginLog"))
  */
 class LoginLog extends Model {
 

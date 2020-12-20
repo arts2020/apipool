@@ -281,3 +281,12 @@ if (!function_exists('objToArr')) {
         return $array;
     }
 }
+
+if (!function_exists('turnCny')) {
+    function turnCny($amount)
+    {
+        $cny = 0;
+
+        return $cny;
+    }
+}
