@@ -12,6 +12,13 @@ class UserAsset extends Model
     protected $table = 'pool_user_asset';
 
     protected $primarykey = 'id';
+    public $timestamps = false;
+    protected $fillable = [
+        'userid',
+        'asset',
+        'address',
+        'amount'
+    ];
 
     /**
      * 限制查找某用户的数据

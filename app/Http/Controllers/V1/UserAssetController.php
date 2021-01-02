@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Repositories\AssetPriceRepository;
 use App\Repositories\UserAssetRepository;
 use App\Repositories\UserTradeRepository;
 use Illuminate\Http\Request;
@@ -12,11 +13,39 @@ class UserAssetController extends ApiController
     protected $tradeRep;
 
     public function __construct(Request $request, UserAssetRepository $assetRepository,
-                                UserTradeRepository $tradeRepository)
+                                UserTradeRepository $tradeRepository,AssetPriceRepository $assetPriceRepository)
     {
         parent::__construct($request);
         $this->assetRep = $assetRepository;
         $this->tradeRep = $tradeRepository;
+        $this->assetPriceRep = $assetPriceRepository;
+    }
+
+
+    public function userAsset(Request $request)
+    {
+        $asset = $request->input('asset');
+        $address = $request->input('address');
+        $amount = $request->input('amount');
+        if (!$asset || !$address) {
+            return $this->apiReturn(['code' => 100, 'msg' => '缺少参数']);
+        }
+
+        if( !is_numeric($amount) ){
+            return $this->apiReturn(['code' => 100, 'msg' => '参数错误']);
+        }
+
+        //查询用户是否已存在该类型数据
+        $userid = $this->user_id;
+        $assetInfo = $this->assetRep->getAssetInfo($userid,$asset);
+        $data = compact('userid','asset','address','amount');
+        if($assetInfo){
+            $res = $this->assetRep->savePost($assetInfo,$data);
+        }else{
+            $res = $this->assetRep->store($data);
+        }
+
+        return $this->success($res);
     }
 
     /**
@@ -39,7 +68,15 @@ class UserAssetController extends ApiController
     public function getMyAsset(Request $request)
     {
         $lists = $this->assetRep->getAssetList($this->user_id);
-        return $this->success($lists);
+        $total = 0;
+        foreach ($lists as $v){
+            //获取当前市场行情
+            $info = $this->assetPriceRep->getInfoByAsset($v['asset']);
+            if ($info)
+                $total += priceCalc($v['amount'],'*',priceCalc($info['price_usd'],'/',$info['price_btc'])) ;
+        }
+        $total_cny = $total?turnCny($total):0;
+        return $this->success(compact('total','total_cny','lists'));
 
     }
 
@@ -54,10 +91,10 @@ class UserAssetController extends ApiController
         if (!$asset) {
             return $this->apiReturn(['code' => 100, 'msg' => '缺少参数分类']);
         }
-        $total = array_sum(array_pluck($this->tradeRep->getTradeList($this->user_id,$asset),'amount'));
-        $cny = $total?turnCny($total):0;
+        $total = array_sum(array_pluck($this->tradeRep->getTradeList($this->user_id,$asset,1),'amount'));
+        $total_cny = $total?turnCny($total):0;
         $list = $this->tradeRep->getTradeList($this->user_id,$asset);
-        return $this->success(compact('total','list'));
+        return $this->success(compact('total','total_cny','list'));
 
     }
 
@@ -75,18 +112,31 @@ class UserAssetController extends ApiController
         if (!$to_address) {
             return $this->apiReturn(['code' => 100, 'msg' => '缺少参数转账地址']);
         }
+        $tx = $request->input('tx');
+        if (!$tx) {
+            return $this->apiReturn(['code' => 100, 'msg' => '缺少参数交易HASH']);
+        }
+
         $assetInfo = $this->assetRep->getAssetInfo($this->user_id,$asset);
-        $insert = [
-            'userid'=>$this->user_id,
-            'asset'=>$asset,
-            'amount'=>$amount,
-            'type'=>'转账',
-            'from_address'=>$assetInfo->address,
-            'to_address'=>$to_address,
-            'state'=> 0
-        ];
-        $res = $this->tradeRep->store($insert);
-        return $this->success($res);
+
+        if ($assetInfo) {
+
+            $insert = [
+                'userid' => $this->user_id,
+                'asset' => $asset,
+                'amount' => $amount,
+                'type' => 3,
+                'from_address' => $assetInfo->address,
+                'to_address' => $to_address,
+                'tx' => $tx,
+                'state' => 0
+            ];
+            $res = $this->tradeRep->store($insert);
+            return $this->success($res);
+
+        } else {
+            return $this->apiReturn(['code' => 100, 'msg' => '转账失败']);
+        }
     }
 
 }

@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\V1;
 
 use App\Repositories\UserPowerRepository;
+use App\Repositories\ProductTypeRepository;
 use Illuminate\Http\Request;
 
 class UserPowerController extends ApiController
 {
     protected $powerRep;
+    protected $typeRep;
 
-    public function __construct(Request $request, UserPowerRepository $powerRepository)
+    public function __construct(Request $request, UserPowerRepository $powerRepository,
+                                ProductTypeRepository $productTypeRepository)
     {
         parent::__construct($request);
         $this->powerRep = $powerRepository;
+        $this->typeRep = $productTypeRepository;
     }
 
     /**
@@ -39,11 +43,18 @@ class UserPowerController extends ApiController
             return $this->apiReturn(['code' => 100, 'msg' => '缺少参数分类']);
         }
 
-        $total = $this->powerRep->getTotalPower($this->user_id,$asset)??0;
-        $valid = $this->powerRep->getValidPower($this->user_id,$asset)??0;
-        $powerLists = $this->powerRep->getPowerList($this->user_id,$asset);
+        $assetInfo = $this->typeRep->getByAttr([['asset','=',$asset]]);
+        if($assetInfo){
+            $unit = $this->typeRep->getByAttr([['asset','=',$asset]])->unit??'';
+            $total = $this->powerRep->getTotalPower($this->user_id,$asset)??0;
+            $valid = $this->powerRep->getValidPower($this->user_id,$asset)??0;
+            $powerLists = $this->powerRep->getPowerList($this->user_id,$asset);
 
-        return $this->success(compact('total','valid','powerLists'));
+            return $this->success(compact('asset','unit','total','valid','powerLists'));
+
+        }else{
+            return $this->fail(100, '数据有误，请核实');
+        }
 
     }
 

@@ -19,7 +19,9 @@ class OrderProduct extends Model
         'product_name',
         'number',
         'asset',
+        'unit',
         'price',
+        'price_cny',
         'discount',
         'fee',
         'days',
@@ -32,5 +34,14 @@ class OrderProduct extends Model
         'product_count',
         'total_price'
     ];
+
+    /**
+     * 所属产品信息
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class,'product_id','id');
+    }
 
 }

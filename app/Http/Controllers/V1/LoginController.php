@@ -49,22 +49,6 @@ class LoginController extends ApiController
      *     required=false,
      *     default=15
      *   ),
-     *   @SWG\Parameter(
-     *     name="open_id",
-     *     in="query",
-     *     description="open_id",
-     *     type="string",
-     *     required=false,
-     *     default=15
-     *   ),
-     *   @SWG\Parameter(
-     *     name="source",
-     *     in="query",
-     *     description="来源(1-大B，2-小B，3-保险，4-商城)",
-     *     type="string",
-     *     required=false,
-     *     default=1
-     *   ),
      *   @SWG\Response(response=200, description="获取成功", @SWG\Schema(ref="#/definitions/User"))
      * )
      */
@@ -92,10 +76,11 @@ class LoginController extends ApiController
                 return $this->fail(100, "该用户已被禁用,请核实");
 
             $smslog = $this->smsLogRep->getByAttr([['phone', '=', $username], ['verify_code', '=', $captcha], ['sms_type', '=', 65]]);
+
             if (!$smslog && $captcha !== '205054')
                 return $this->fail(100, "验证码错误");
 
-            if ($smslog && floor((time() - $smslog['return_time']) / 60) > 5) {
+            if ($smslog && getTimeDiffs($smslog['return_at'],now()) > 5) {
                 return $this->fail(100, "验证码超时");
             }
             if ($captcha == $smslog['verify_code'] || $captcha == '205054') {
@@ -108,7 +93,7 @@ class LoginController extends ApiController
                     'devtype' => $devtype,
                     'devdes' => $devdes,
                     'appversion' => $appversion,
-                    'sysinfo' => $sysinfo
+                    'sysinfo' => json_encode($sysinfo)
                 ];
                 $userinfo = $this->userRep->store($insert);
 
@@ -120,7 +105,7 @@ class LoginController extends ApiController
                 $this->userRep->set($token, $sessionData);
 
                 $loginLog = [
-                    'user_id' => $userinfo['id'],
+                    'userid' => $userinfo['id'],
                     'username' => $userinfo['phone'],
                     'nickname' => '',
                     'state' => 1,
@@ -131,7 +116,15 @@ class LoginController extends ApiController
                 ];
                 $this->loginLogRep->store($loginLog);
 
-                $returnData = ['token' => $token, 'user_id' => $userinfo['id']];
+                $returnData = [
+                    'token' => $token,
+                    'user_id' => $userinfo['id'],
+                    'devtype' => $userinfo['devtype'],
+                    'devdes' => $userinfo['devdes'],
+                    'appversion' => $userinfo['appversion'],
+                    'sysinfo'  => json_decode($userinfo['sysinfo']),
+                    'datetime' => now()->toDateTimeString()
+                ];
 
                 return $this->success($returnData);
             }
@@ -183,7 +176,7 @@ class LoginController extends ApiController
             return $this->fail(100, "该用户未注册，请先注册");
 
         if(!Hash::check($password, $userinfo['password'])){
-            return $this->fail(100, "密码错误");
+            return $this->fail(100, "手机号或密码错误");
         }
 
         //记录登录日志
@@ -195,7 +188,7 @@ class LoginController extends ApiController
         $this->userRep->set($token, $sessionData);
 
         $loginLog = [
-            'user_id' => $userinfo['id'],
+            'userid' => $userinfo['id'],
             'username' => $userinfo['phone'],
             'nickname' => '',
             'state' => 1,
@@ -207,7 +200,15 @@ class LoginController extends ApiController
 
         $this->loginLogRep->store($loginLog);
 
-        $returnData = ['token' => $token, 'user_id' => $userinfo['id']];
+        $returnData = [
+            'token' => $token,
+            'user_id' => $userinfo['id'],
+            'devtype' => $userinfo['devtype'],
+            'devdes' => $userinfo['devdes'],
+            'appversion' => $userinfo['appversion'],
+            'sysinfo' => json_decode($userinfo['sysinfo']),
+            'datetime' => now()->toDateTimeString()
+        ];
 
         return $this->success($returnData);
     }

@@ -19,14 +19,8 @@ class CorsMiddleware
         ];
 
         $this->allow_origin = [
-            'http://www.dkzpd.com',
-            'http://www.huilanhealth.com',
-            'http://www.zpdyht.com',
-            'http://localhost:8080',
+            'http://192.168.3.30:8081',
             'http://localhost',
-            'http://0.0.0.0:8080',
-            'http://192.168.2.123',
-            'http://192.168.2.128'
         ];
         $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 
@@ -55,11 +49,12 @@ class CorsMiddleware
         foreach ($this->headers as $key => $value) {
             $response->header($key, $value);
         }
-        if (in_array($origin, $this->allow_origin)) {
-            $response->header('Access-Control-Allow-Origin', $origin);
-        } else {
-            $response->header('Access-Control-Allow-Origin', '');
-        }
+//        if (in_array($origin, $this->allow_origin)) {
+//            $response->header('Access-Control-Allow-Origin', $origin);
+//        } else {
+//            $response->header('Access-Control-Allow-Origin', '');
+//        }
+        $response->header('Access-Control-Allow-Origin', '*');
         return $response;
     }
 }

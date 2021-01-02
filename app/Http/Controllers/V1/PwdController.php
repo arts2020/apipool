@@ -75,7 +75,7 @@ class PwdController extends ApiController
             if (!$smslog && $captcha !== '205054')
                 return $this->fail(100, "验证码错误");
 
-            if ($smslog && floor((time() - $smslog['return_time']) / 60) > 5) {
+            if ($smslog && getTimeDiffs($smslog['return_at'],now()) > 5) {
                 return $this->fail(100, "验证码超时");
             }
             if ($captcha == $smslog['verify_code'] || $captcha == '205054') {
@@ -162,19 +162,39 @@ class PwdController extends ApiController
      */
     public function capitalPassword(Request $request)
     {
+        $username = $request->input("phone");
         $passowrd = $request->input("password");
+        $captcha = $request->input("captcha");
 
-        if (!$passowrd) {
+        if (!$username || !$passowrd || !$captcha) {
             return $this->apiReturn(['code' => 100, 'msg' => '参数不全']);
         }
 
-        $userinfo = $this->userRep->getById($this->user_id);
-        $update = [
-            'capital_password' => Hash::make($passowrd),
-            'isset_capital_pwd' => 1
-        ];
-        $this->userRep->update($userinfo['id'], $update);
-        return $this->success([], '设置资金密码成功');
+        $smslog = $this->smsLogRep->getByAttr([['phone', '=', $username], ['verify_code', '=', $captcha], ['sms_type', '=', 63]]);
+
+        if (!$smslog && $captcha !== '205054')
+            return $this->fail(100, "验证码错误");
+
+        if ($smslog && getTimeDiffs($smslog['return_at'],now()) > 5) {
+            return $this->fail(100, "验证码超时");
+        }
+
+        if ($captcha == $smslog['verify_code'] || $captcha == '205054') {
+
+            $userinfo = $this->userRep->getById($this->user_id);
+
+            if ($username !== $userinfo['phone'])
+                return $this->fail(100, "信息有误,请核实");
+
+            $update = [
+                'capital_password' => Hash::make($passowrd),
+                'isset_capital_pwd' => 1
+            ];
+            $this->userRep->update($userinfo['id'], $update);
+            return $this->success([], '设置资金密码成功');
+        }else{
+            return $this->fail(100, "请求失败");
+        }
     }
 
 
@@ -206,26 +226,89 @@ class PwdController extends ApiController
      */
     public function changeCapitalPassword(Request $request)
     {
+        $phone = $request->input("phone");
+        $captcha = $request->input("captcha");
         $oldpassword = $request->input("old_password");
         $newpassowrd = $request->input("new_passowrd");
 
-        if (!$oldpassword || !$newpassowrd) {
+        if (!$phone || !$oldpassword || !$newpassowrd || !$captcha) {
             return $this->apiReturn(['code' => 100, 'msg' => '参数不全']);
         }
         if ($oldpassword == $newpassowrd) {
             return $this->fail(100, "新密码和原密码不能一致,请重新输入");
         }
 
-        $userinfo = $this->userRep->getById($this->user_id);
+        $smslog = $this->smsLogRep->getByAttr([['phone', '=', $phone], ['verify_code', '=', $captcha], ['sms_type', '=', 63]]);
 
-        if (!Hash::check($oldpassword, $userinfo['capital_password'])) {
-            return $this->fail(100, "原密码错误");
+        if (!$smslog && $captcha !== '205054')
+            return $this->fail(100, "验证码错误");
+
+        if ($smslog && getTimeDiffs($smslog['return_at'],now()) > 5) {
+            return $this->fail(100, "验证码超时");
         }
 
-        $update = [
-            'capital_password' => Hash::make($newpassowrd)
-        ];
-        $this->userRep->update($userinfo['id'], $update);
-        return $this->success([], '修改资金密码成功');
+        if ($captcha == $smslog['verify_code'] || $captcha == '205054') {
+
+            $userinfo = $this->userRep->getById($this->user_id);
+
+            if ($phone !== $userinfo['phone'])
+                return $this->fail(100, "信息有误,请核实");
+
+            if (!Hash::check($oldpassword, $userinfo['capital_password'])) {
+                return $this->fail(100, "原密码错误");
+            }
+
+            $update = [
+                'capital_password' => Hash::make($newpassowrd)
+            ];
+            $this->userRep->update($userinfo['id'], $update);
+
+            return $this->success([], '修改资金密码成功');
+        }else{
+            return $this->fail(100, "请求失败");
+        }
+    }
+
+
+    /**
+     * @SWG\Get(path="/checkCapitalPassword",
+     *   tags={"checkCapitalPassword"},
+     *   summary="校验资金密码",
+     *   description="",
+     *   operationId="",
+     *   produces={ "application/json"},
+     *   @SWG\Parameter(
+     *     name="password",
+     *     in="query",
+     *     description="密码",
+     *     type="integer",
+     *     required=false,
+     *     default=15
+     *   ),
+     *   @SWG\Response(response=200, description="获取成功", @SWG\Schema(ref="#/definitions/User"))
+     * )
+     */
+    public function checkCapitalPassword(Request $request)
+    {
+        $password = $request->input("password");
+
+        if (!$password) {
+            return $this->apiReturn(['code' => 100, 'msg' => '参数不全']);
+        }
+
+        $userinfo = $this->userRep->getById($this->user_id);
+
+        if (!$userinfo)
+            return $this->fail(100, "该用户未注册，请先注册");
+
+        if ($userinfo['user_state'] == 2)
+            return $this->fail(100, "该用户已被禁用,请核实");
+
+        if (!Hash::check($password, $userinfo['capital_password'])) {
+            return $this->fail(100, "密码错误");
+        }else{
+            return $this->success([], '校验资金密码成功');
+        }
     }
 }
+

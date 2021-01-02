@@ -2,15 +2,14 @@
 namespace App\Observers;
 
 use App\Models\Order;
-use App\Http\Services\SmsService;
 use Illuminate\Http\Request;
 
 class OrderObserver
 {
 
-    public function __construct(Request $request, SmsService $smsservice)
+    public function __construct(Request $request)
     {
-        $this->sms = $smsservice;
+
     }
 
     /**

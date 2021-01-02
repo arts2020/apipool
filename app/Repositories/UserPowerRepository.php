@@ -21,7 +21,7 @@ class UserPowerRepository
      */
     public function getPowerList($user_id,$asset)
     {
-        return $this->model->with(['order'])->Asset($asset)->Userid($user_id)->State(1)->get();
+        return $this->model->with(['order.orderProduct'])->Asset($asset)->Userid($user_id)->State(1)->get();
     }
 
     /**

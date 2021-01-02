@@ -30,7 +30,7 @@ class Notice extends Model
      */
     public function scopeState($query)
     {
-        return $query->where('state', '=', 1);
+        return $query->where('state',1);
     }
 
     /**

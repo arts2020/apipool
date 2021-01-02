@@ -15,6 +15,45 @@ class UserAssetRepository
         $this->model = $model;
     }
 
+
+    /**
+     * 创建
+     *
+     * @param array $input
+     * @return \App\Models\UserAsset
+     */
+    public function store($input)
+    {
+        return $this->savePost(new $this->model, $input);
+    }
+
+    /**
+     * 更新
+     *
+     * @param int $id
+     * @param array $input
+     * @return \App\Models\UserAsset
+     */
+    public function update($id, $input)
+    {
+        $model = $this->model->find($id);
+        return $this->savePost($model, $input);
+    }
+
+    /**
+     * 保存
+     *
+     * @param UserAsset $model
+     * @param  $input
+     * @return
+     */
+    public function savePost($model, $input)
+    {
+        $model->fill($input);
+        $model->save();
+        return $model;
+    }
+
     /**
      * 钱包明细
      * @param $user_id

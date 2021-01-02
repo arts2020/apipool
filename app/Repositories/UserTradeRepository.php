@@ -58,8 +58,13 @@ class UserTradeRepository
      * 获取收益列表
      * @param $asset
      */
-    public function getTradeList($user_id,$asset)
+    public function getTradeList($user_id,$asset,$state = '')
     {
-        return $this->model->Asset($asset)->Userid($user_id)->State(1)->get();
+        return $this->model
+            ->when(($state), function ($query) use ($state) {
+                return $query->State($state);
+            })
+            ->Asset($asset)->Userid($user_id)
+            ->get();
     }
 }

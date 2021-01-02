@@ -1,6 +1,7 @@
 <?php
 
 use Carbon\Carbon;
+use App\Models\Config;
 
 /**
  * 获取随机数
@@ -18,7 +19,7 @@ if (!function_exists('getRandom')) {
 if (!function_exists('build_no')) {
     function build_no($prex = '')
     {
-        return $prex . date('Ymd') . substr(implode(NULL, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8).str_pad(mt_rand(1, 99), 2, '0', STR_PAD_LEFT);
+        return $prex . date('Ymd') . substr(implode(NULL, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8) . str_pad(mt_rand(1, 99), 2, '0', STR_PAD_LEFT);
     }
 }
 
@@ -46,14 +47,14 @@ if (!function_exists('curlGet')) {
         curl_setopt($ch, CURLOPT_TIMEOUT, 4);
         $data = curl_exec($ch);
         if (curl_errno($ch)) {
-            return json_encode(['code'=>-1,'msg'=>'接口异常']);
+            return json_encode(['code' => -1, 'msg' => '接口异常']);
         }
-        $httpCode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        if ($httpCode == 200){
+        if ($httpCode == 200) {
             return $data;
-        }else{
-            return json_encode(['code'=>-1,'msg'=>'接口异常']);
+        } else {
+            return json_encode(['code' => -1, 'msg' => '接口异常']);
         }
     }
 }
@@ -74,14 +75,14 @@ if (!function_exists('curlPost')) {
         curl_setopt($ch, CURLOPT_TIMEOUT, 4);
         $data = curl_exec($ch);
         if (curl_errno($ch)) {
-            return json_encode(['code'=>-1,'msg'=>'接口异常']);
+            return json_encode(['code' => -1, 'msg' => '接口异常']);
         }
-        $httpCode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        if ($httpCode == 200){
+        if ($httpCode == 200) {
             return $data;
-        }else{
-            return json_encode(['code'=>-1,'msg'=>'接口异常']);
+        } else {
+            return json_encode(['code' => -1, 'msg' => '接口异常']);
         }
     }
 }
@@ -135,8 +136,8 @@ if (!function_exists('genToken')) {
 
 /**
  * 验证手机号是否正确
- * @author honfei
  * @param number $mobile
+ * @author honfei
  */
 if (!function_exists('isMobile')) {
     function isMobile($mobile)
@@ -153,10 +154,10 @@ if (!function_exists('isMobile')) {
 }
 
 /**
- * @author  alan
- * 把数字1-1亿换成汉字表述，如：123->一百二十三
  * @param [num] $num [数字]
  * @return [string] [string]
+ * @author  alan
+ * 把数字1-1亿换成汉字表述，如：123->一百二十三
  */
 if (!function_exists('numToWord')) {
     function numToWord($num)
@@ -234,32 +235,40 @@ if (!function_exists('floatcmp')) {
  * http post请求
  */
 if (!function_exists('httpPost')) {
-    function httpPost($url, $curl_post = [],$headers){
+    function httpPost($url, $curl_post = [], $headers)
+    {
         $ch = curl_init(); //初始化
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, true);  //post提交方式
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($curl_post));
-        curl_setopt($ch, CURLOPT_TIMEOUT,5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         $data = curl_exec($ch);
         if (curl_errno($ch)) {
-            return json_encode(['code'=>-1,'msg'=>'接口异常']);
+            return json_encode(['code' => -1, 'msg' => '接口异常']);
         }
-        $httpCode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        if ($httpCode == 200){
-            return json_decode($data,true);
-        }else{
-            return json_encode(['code'=>-1,'msg'=>'接口异常']);
+        if ($httpCode == 200) {
+            return json_decode($data, true);
+        } else {
+            return json_encode(['code' => -1, 'msg' => '接口异常']);
         }
+    }
+}
+
+if (! function_exists('public_path')) {
+    function public_path($path = '')
+    {
+        return base_path().'/public/'.$path;
     }
 }
 
 /**
  * 获取当前时间
  */
-if (! function_exists('now')) {
+if (!function_exists('now')) {
     function now($tz = null)
     {
         return Carbon::now($tz);
@@ -282,11 +291,61 @@ if (!function_exists('objToArr')) {
     }
 }
 
-if (!function_exists('turnCny')) {
-    function turnCny($amount)
+/**
+ * 计算时间差
+ */
+if (!function_exists('getTimeDiffs')) {
+    function getTimeDiffs($start_time, $end_time)
     {
-        $cny = 0;
+        return Carbon::parse($start_time)->diffInMinutes(Carbon::parse($end_time));
+    }
+}
 
-        return $cny;
+/**
+ * usd转cny
+ */
+if (!function_exists('turnCny')) {
+    function turnCny($usd)
+    {
+        $configs = (new Config())->Key('exchange_key')->first();
+
+        return bcmul($usd,$configs->value,4);
+    }
+}
+
+
+/**
+ * 精确计算主要用于货币的计算
+ * @param $n1
+ * @param $symbol
+ * @param $n2
+ * @param string $scale 精度 默认为小数点后四位
+ * @return string
+ */
+if (!function_exists('priceCalc')) {
+    function priceCalc($n1, $symbol, $n2, $scale = '4')
+    {
+        switch ($symbol) {
+            case "+":
+                $res = bcadd($n1, $n2, $scale);
+                break;
+            case "-":
+                $res = bcsub($n1, $n2, $scale);
+                break;
+            case "*":
+                $res = bcmul($n1, $n2, $scale);
+                break;
+            case "/":
+                $res = bcdiv($n1, $n2, $scale);
+                break;
+            case "%":
+                $res = bcmod($n1, $n2);
+                break;
+            default:
+                $res = "";
+                break;
+        }
+
+        return $res;
     }
 }

@@ -50,9 +50,9 @@ class UserTrade extends Model
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeState($query,$type)
+    public function scopeState($query,$state)
     {
-        return $query->where('state',$type);
+        return $query->where('state',$state);
     }
 
 

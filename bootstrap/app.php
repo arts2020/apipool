@@ -27,6 +27,7 @@ $app = new Laravel\Lumen\Application(
 $app->withFacades();
 $app->configure('sms');
 $app->configure('swagger-lume');
+$app->configure('upload');
 $app->register(\SwaggerLume\ServiceProvider::class);
 $app->register(Jenssegers\Mongodb\MongodbServiceProvider::class);
 $app->withEloquent();

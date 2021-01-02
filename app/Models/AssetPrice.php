@@ -13,6 +13,22 @@ class AssetPrice extends Model
 
     protected $primarykey = 'id';
 
+    protected $appends = ['price_cny'];
+
+    /**
+     * 返回cny字段
+     */
+    public function getPriceCnyAttribute()
+    {
+        return turnCny($this->attributes['price_usd']);
+    }
+
+
+    public function scopeType($query,$asset)
+    {
+        return $query->where('symbol', $asset);
+    }
+
     /**
      * 动态格式化时间戳
      */

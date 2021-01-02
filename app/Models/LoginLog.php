@@ -15,7 +15,7 @@ class LoginLog extends Model {
     public $timestamps = true;
 
     protected $fillable = [
-        'user_id',
+        'userid',
         'username',
         'nickname',
         'state',

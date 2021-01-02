@@ -37,8 +37,18 @@ class ProductController extends ApiController
         if (!$asset) {
             return $this->apiReturn(['code' => 100, 'msg' => '缺少参数产品分类']);
         }
+        $source = $request->input('source');
+        $index = $request->input('index');
 
-        $productLists = $this->productRep->getProductList($asset);
+        $productLists = $this->productRep->getProductList($asset,$source,$index);
+
+        if($productLists->isNotEmpty()){
+            foreach($productLists as &$product){
+                $product['unit'] = $product->type->unit;
+                unset($product->type);
+            }
+            unset($product);
+        }
 
         return $this->success($productLists);
 

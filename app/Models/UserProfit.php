@@ -41,4 +41,12 @@ class UserProfit extends Model
         return \Carbon\Carbon::parse($this->attributes['createtime'])->toDateString();
     }
 
+    /**
+     * 获取算力对应单位
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function unit()
+    {
+        return $this->hasOne(ProductType::class, 'asset', 'asset');
+    }
 }

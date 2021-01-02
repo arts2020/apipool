@@ -19,8 +19,12 @@ class ProductRepository
      * 获取分类下的产品列表
      * @param $asset
      */
-    public function getProductList($asset)
+    public function getProductList($asset,$source,$index)
     {
-        return $this->model->Asset($asset)->State()->get();
+        return $this->model->with(['type'])->Asset($asset)->State()
+            ->when(($source && $source == 'index' && $index > 0), function ($query) use ($index) {
+                return $query->take($index);
+            })
+            ->get();
     }
 }

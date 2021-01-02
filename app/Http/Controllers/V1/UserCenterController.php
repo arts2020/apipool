@@ -101,4 +101,39 @@ class UserCenterController extends ApiController
     }
 
 
+    /**
+     * @SWG\Get(path="/getUserInfo",
+     *   tags={"getUserInfo"},
+     *   summary="获取个人信息",
+     *   description="",
+     *   operationId="",
+     *   produces={ "application/json"},
+     *   @SWG\Parameter(
+     *     name="userid",
+     *     in="query",
+     *     description="用户id",
+     *     type="integer",
+     *     required=false,
+     *     default=1
+     *   ),
+     *   @SWG\Response(response=200, description="获取成功", @SWG\Schema(ref="#/definitions/User"))
+     * )
+     */
+    public function getAuthInfo(Request $request)
+    {
+        $userinfo = $this->userRep->getById($this->user_id);
+
+        if ($userinfo->user_state == 2)
+            return $this->fail(100, "该用户已被禁用,请核实");
+
+        $res = [
+            'imgurl' => $userinfo->imgurl,
+            'imgurl2' => $userinfo->imgurl2,
+            'identity_state_text' => $userinfo->identity_state_text,
+            'verify_state_text' => $userinfo->verify_state_text,
+        ];
+
+        return $this->success($res);
+    }
+
 }

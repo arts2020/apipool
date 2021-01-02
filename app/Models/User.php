@@ -17,7 +17,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $primarykey = 'id';
 
     public $timestamps = true;
-
+    protected $appends = ['verify_state_text','identity_state_text'];
     protected $fillable = [
         'username',
         'phone',
@@ -54,4 +54,25 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         1 => '启用',
         2 => '停用',
     ];
+
+    public $identity_state = [
+        1 => '未认证',
+        2 => '已认证',
+    ];
+
+    public $verify_state = [
+        1 => '未审核',
+        2 => '审核通过',
+        3 => '审核不通过'
+    ];
+
+    public function getIdentityStateTextAttribute()
+    {
+        return $this->identity_state[$this->attributes['identity_state']];
+    }
+
+    public function getVerifyStateTextAttribute()
+    {
+        return $this->verify_state[$this->attributes['verify_state']];
+    }
 }

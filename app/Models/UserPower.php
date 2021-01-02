@@ -57,6 +57,15 @@ class UserPower extends Model
      */
     public function order()
     {
-        return $this->belongsTo(order::class, 'orderid', 'id');
+        return $this->belongsTo(Order::class, 'orderid', 'id');
+    }
+
+    /**
+     * 获取算力对应单位
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function type()
+    {
+        return $this->hasOne(ProductType::class, 'asset', 'asset');
     }
 }

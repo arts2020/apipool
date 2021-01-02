@@ -2,45 +2,60 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="Order"))
  */
 class Order extends Model
 {
+    use SoftDeletes,Traits\UserTrait;
+
     protected $table = 'pool_order';
     protected $primarykey = 'id';
-
+    protected $appends = ['expired_at'];
+    protected $dates = ['deleted_at'];
     public $timestamps = true;
-
-    public $mp_status = [
+    public $mp_state = [
         0 => '已确认',
         1 => '已取消',
-        2 => '已完成'
+        2 => '已完成',
+        3 => '已删除'
+    ];
+
+    public $mp_pay_state = [
+        0 => '未支付',
+        1 => '已支付',
+        2 => '超时',
+    ];
+
+    public $mp_verify_state = [
+        0 => '审核中',
+        1 => '通过',
+        2 => '未通过'
     ];
 
     protected $fillable = [
         'order_no',
+        'asset',
         'userid',
         'total',
         'discount',
         'amount',
+        'amount_cny',
         'pay_at',
         'cancel_at',
         'cancel_reason',
+        'type',
         'state',
         'pay_state',
-        'lat',
-        'medical_desc',
-        'medical_special_desc',
-        'patient_phone',
-        'change_book_time',
-        'change_order_address',
-        'sub_price',
-        'cancel_reason',
-        'cancel_time',
+        'verify_state',
+        'verify_cancel_reason',
+        'verify_at',
+        'created_by',
         'remark',
-        'tx'
+        'tx',
+        'deleted_at'
     ];
 
     /**
@@ -70,53 +85,19 @@ class Order extends Model
      */
     public function orderProduct()
     {
-        return $this->hasOne(orderProduct::class, 'order_id', 'id');
+        return $this->hasOne(OrderProduct::class, 'order_id', 'id');
     }
-
 
     /**
-     * 订单数、订单金额统计
-     * @param $dateArr
-     * @param $hospital_id
-     * @param $keshi_id
-     * @return array
+     * 待支付的过期时间
      */
-    public function getStatistics($dateArr, $hospital_id, $keshi_id, $type = 0)
+    public function getExpiredAtAttribute()
     {
-        $where[] = ['created_at', '>=', $dateArr['time_start']];
-        $where[] = ['created_at', '<=', $dateArr['time_end']];
-        if ($hospital_id) {
-            $where['hospital_id'] = $hospital_id;
+        if ($this->attributes['pay_state'] == 0) {
+            $config = (new Config())->Key('order_cancel')->first();
+            $hour = $config ? $config->value : 2;
+            return \Carbon\Carbon::parse($this->attributes['created_at'])->addHours($hour)->timestamp;
         }
-        if ($keshi_id || ($keshi_id == 0 && $type > 0)) {
-            $where['keshi_id'] = $keshi_id;
-        }
-
-        $groupStr = 'keshi_id';
-        //如果type为1，则统计为天的数据
-        if ($type == 1) {
-            $groupStr = 'd';
-        } elseif ($type == 2) {
-            $groupStr = 'w';
-        }
-
-        $where[] = ['status', '>', 1];
-        $where[] = ['status', '<>', 17];
-        $where[] = ['status', '<>', 19];
-        $where[] = ['is_del', '=', 1];
-
-        $list = $this->selectRaw("sum(1) as total ,sum(pay_fee) as money_total,keshi_id,FROM_UNIXTIME(created_at,'%Y-%m-%d') as d,FROM_UNIXTIME(created_at,'%Y-%u') as w")
-            ->whereRaw("order_no NOT in (select parent_order_no from zpd_order GROUP BY parent_order_no)")
-            ->where($where)
-            ->groupBy($groupStr)
-            ->get()
-            ->toArray();
-
-        if ($list) {
-            $list = array_column($list, null, $groupStr);
-        }
-        return $list;
+        return '';
     }
-
-
 }

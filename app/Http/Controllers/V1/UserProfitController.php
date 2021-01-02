@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\V1;
 
 use App\Repositories\UserProfitRepository;
+use App\Repositories\ProductTypeRepository;
 use Illuminate\Http\Request;
 
 class UserProfitController extends ApiController
 {
     protected $powerRep;
+    protected $typeRep;
 
-    public function __construct(Request $request, UserProfitRepository $profitRepository)
+    public function __construct(Request $request, UserProfitRepository $profitRepository,
+                                ProductTypeRepository $productTypeRepository)
     {
         parent::__construct($request);
         $this->profitRep = $profitRepository;
+        $this->typeRep = $productTypeRepository;
     }
 
     /**
@@ -34,17 +38,17 @@ class UserProfitController extends ApiController
      */
     public function getMyProfit(Request $request)
     {
-        $asset = $request->input('asset');
-        if (!$asset) {
-            return $this->apiReturn(['code' => 100, 'msg' => '缺少参数分类']);
+        $typeLists = $this->typeRep->getListWithProfit($this->user_id);
+
+        if($typeLists->isNotEmpty()){
+            foreach($typeLists as &$type){
+                $type['total'] = array_sum(array_pluck ($type->profit,'count'));
+                unset($type->profit);
+            }
+            unset($type);
         }
 
-        $btcprofit = $this->profitRep->getProfit($this->user_id,$asset)??0;
-        $ethprofit = $this->profitRep->getProfit($this->user_id,$asset)??0;
-        $filecoinprofit = $this->profitRep->getProfit($this->user_id,$asset)??0;
-
-        return $this->success(compact('btcprofit','ethprofit','filecoinprofit'));
-
+        return $this->success($typeLists);
     }
 
 
@@ -56,7 +60,7 @@ class UserProfitController extends ApiController
         }
 
         $list = $this->profitRep->getProfitList($this->user_id,$asset);
-        return $this->success($list);
+        return $this->success(compact('asset','list'));
 
     }
 

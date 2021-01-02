@@ -1,16 +1,16 @@
 <?php
 namespace App\Repositories;
 
-use App\Models\AssetPrice;
+use App\Models\AssetState;
 use App\Repositories\Traits\BaseRepository;
 
-class AssetPriceRepository
+class AssetStateRepository
 {
     use BaseRepository;
 
     protected $model;
 
-    public function __construct(AssetPrice $model)
+    public function __construct(AssetState $model)
     {
         $this->model = $model;
     }
@@ -21,13 +21,5 @@ class AssetPriceRepository
     public function getList()
     {
         return $this->model->get();
-    }
-
-    /**
-     * 查询某个币种实时行情
-     */
-    public function getInfoByAsset($asset)
-    {
-        return $this->model->Type($asset)->first();
     }
 }

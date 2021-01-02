@@ -13,7 +13,7 @@ class ModelObserverProvider extends ServiceProvider
      */
     public function boot()
     {
-        Order::observe(\App\Observers\OrderObserver::class);
+        Order::observe(\App\Observers\MemberObserver::class);
     }
 
     public function register()

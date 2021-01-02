@@ -19,4 +19,13 @@ class ProductType extends Model
         'exchange',
         'remark'
     ];
+
+    /**
+     * 获取分类的收益
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function profit()
+    {
+        return $this->hasMany(UserProfit::class, 'asset', 'asset');
+    }
 }
