@@ -30,7 +30,9 @@ class UserAssetController extends ApiController
         if (!$asset || !$address) {
             return $this->apiReturn(['code' => 100, 'msg' => '缺少参数']);
         }
-
+        if ($address == 'undefined') {
+            return $this->apiReturn(['code' => 100, 'msg' => '非法参数']);
+        }
         if( !is_numeric($amount) ){
             return $this->apiReturn(['code' => 100, 'msg' => '参数错误']);
         }

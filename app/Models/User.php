@@ -61,6 +61,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     ];
 
     public $verify_state = [
+        0 => '未上传',
         1 => '未审核',
         2 => '审核通过',
         3 => '审核不通过'

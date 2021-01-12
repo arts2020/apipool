@@ -71,6 +71,6 @@ class UserAssetRepository
      */
     public function getAssetInfo($user_id,$asset)
     {
-        return $this->model->Userid($user_id)->Asset($asset)->first();
+        return $this->model->Userid($user_id)->Asset($asset)->where('address','<>','undefined')->first();
     }
 }
