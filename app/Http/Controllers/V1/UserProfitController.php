@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class UserProfitController extends ApiController
 {
-    protected $powerRep;
+    protected $profitRep;
     protected $typeRep;
 
     public function __construct(Request $request, UserProfitRepository $profitRepository,
@@ -43,7 +43,13 @@ class UserProfitController extends ApiController
         if($typeLists->isNotEmpty()){
             foreach($typeLists as &$type){
                 $type['total'] = array_sum(array_pluck ($type->profit,'count'));
+                $type['withdrawal_amount'] = array_sum(array_pluck ($type->profit,'withdrawal_amount'));
+                $type['frozen_amount'] = array_sum(array_pluck ($type->profit,'frozen_amount'));
+                $type['today_amount'] = $type->share?$type->share->amount:0;
+                $type['drawing_amount'] = array_sum(array_pluck ($type->trade,'amount'));
                 unset($type->profit);
+                unset($type->share);
+                unset($type->trade);
             }
             unset($type);
         }

@@ -169,6 +169,10 @@ class PwdController extends ApiController
         if (!$username || !$passowrd || !$captcha) {
             return $this->apiReturn(['code' => 100, 'msg' => '参数不全']);
         }
+        $userinfo = $this->userRep->getById($this->user_id);
+
+        if ($username !== $userinfo['phone'])
+            return $this->fail(100, "信息有误,请核实");
 
         $smslog = $this->smsLogRep->getByAttr([['phone', '=', $username], ['verify_code', '=', $captcha], ['sms_type', '=', 63]]);
 
@@ -180,11 +184,6 @@ class PwdController extends ApiController
         }
 
         if ($captcha == $smslog['verify_code'] || $captcha == '205054') {
-
-            $userinfo = $this->userRep->getById($this->user_id);
-
-            if ($username !== $userinfo['phone'])
-                return $this->fail(100, "信息有误,请核实");
 
             $update = [
                 'capital_password' => Hash::make($passowrd),
@@ -237,6 +236,14 @@ class PwdController extends ApiController
         if ($oldpassword == $newpassowrd) {
             return $this->fail(100, "新密码和原密码不能一致,请重新输入");
         }
+        $userinfo = $this->userRep->getById($this->user_id);
+
+        if ($phone !== $userinfo['phone'])
+            return $this->fail(100, "信息有误,请核实");
+
+        if (!Hash::check($oldpassword, $userinfo['capital_password']))
+            return $this->fail(100, "原密码错误");
+
 
         $smslog = $this->smsLogRep->getByAttr([['phone', '=', $phone], ['verify_code', '=', $captcha], ['sms_type', '=', 63]]);
 
@@ -248,15 +255,6 @@ class PwdController extends ApiController
         }
 
         if ($captcha == $smslog['verify_code'] || $captcha == '205054') {
-
-            $userinfo = $this->userRep->getById($this->user_id);
-
-            if ($phone !== $userinfo['phone'])
-                return $this->fail(100, "信息有误,请核实");
-
-            if (!Hash::check($oldpassword, $userinfo['capital_password'])) {
-                return $this->fail(100, "原密码错误");
-            }
 
             $update = [
                 'capital_password' => Hash::make($newpassowrd)

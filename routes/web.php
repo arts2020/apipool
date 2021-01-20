@@ -94,7 +94,9 @@ $app->group($pool, function () use ($app) {
         $app->post('/transfer', 'UserAssetController@transfer');
 //        $app->post('/recharge', 'UserAssetController@recharge');
 
-
+        # ------------------ 提币 ------------------------
+        $app->post('/coin', 'DrawCoinController@coin');
+        $app->post('/getCoinList', 'DrawCoinController@getCoinList');
     });
 
 });

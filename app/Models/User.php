@@ -12,6 +12,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 {
     use Authenticatable, Authorizable;
 
+    const VERIFY_STATE_UNUPLOAD  = 0;
+    const VERIFY_STATE_PENDING   = 1;
+    const VERIFY_STATE_PASS     = 2;
+    const VERIFY_STATE_UNPASS   = 3;
+
+    const IDENTITY_STATE_UNVERIFIED = 1;
+    const IDENTITY_STATE_VERIFIED   = 2;
+
     protected $table = 'pool_user';
 
     protected $primarykey = 'id';
@@ -54,26 +62,26 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         1 => '启用',
         2 => '停用',
     ];
-
-    public $identity_state = [
-        1 => '未认证',
-        2 => '已认证',
+    public static $identityStateMap = [
+        self::IDENTITY_STATE_UNVERIFIED   => '未认证',
+        self::IDENTITY_STATE_VERIFIED   => '已认证'
     ];
 
-    public $verify_state = [
-        0 => '未上传',
-        1 => '未审核',
-        2 => '审核通过',
-        3 => '审核不通过'
+    public static $verifyStateMap = [
+        self::VERIFY_STATE_UNUPLOAD   => '未上传',
+        self::VERIFY_STATE_PENDING    => '未审核',
+        self::VERIFY_STATE_PASS       => '审核通过',
+        self::VERIFY_STATE_UNPASS     => '审核不通过',
     ];
+
 
     public function getIdentityStateTextAttribute()
     {
-        return $this->identity_state[$this->attributes['identity_state']];
+        return self::$identityStateMap[$this->attributes['identity_state']];
     }
 
     public function getVerifyStateTextAttribute()
     {
-        return $this->verify_state[$this->attributes['verify_state']];
+        return self::$verifyStateMap[$this->attributes['verify_state']];
     }
 }

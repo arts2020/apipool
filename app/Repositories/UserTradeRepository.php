@@ -67,4 +67,16 @@ class UserTradeRepository
             ->Asset($asset)->Userid($user_id)
             ->get();
     }
+
+
+    /**
+     * 获取提币记录
+     * @param $asset
+     */
+    public function getTradeListForCoin($user_id,$asset)
+    {
+        return $this->model
+            ->Asset($asset)->Userid($user_id)->Type(UserTrade::TYPE_DRAW_COIN_PROFIT)
+            ->get();
+    }
 }

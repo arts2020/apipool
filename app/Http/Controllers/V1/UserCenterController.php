@@ -3,6 +3,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Repositories\SmsLogRepository;
 use App\Repositories\UserRepository;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -95,6 +96,8 @@ class UserCenterController extends ApiController
         $update = [
             'imgurl' => $imgurl,
             'imgurl2' => $imgurl2,
+            'verify_state' => User::VERIFY_STATE_PENDING,
+            'identity_state' => User::IDENTITY_STATE_UNVERIFIED
         ];
         $this->userRep->update($userinfo['id'], $update);
         return $this->success([], '修改成功');
