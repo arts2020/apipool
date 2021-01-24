@@ -125,7 +125,7 @@ class UserAssetController extends ApiController
 
             $insert = [
                 'userid' => $this->user_id,
-                'asset' => $asset,
+                'asset' => turnAsset($asset),
                 'amount' => $amount,
                 'type' => 3,
                 'from_address' => $assetInfo->address,

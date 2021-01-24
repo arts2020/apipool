@@ -38,7 +38,7 @@ class DrawCoinController extends ApiController
         if ($assetInfo) {
             $insert = [
                 'userid' => $this->user_id,
-                'asset' => $asset,
+                'asset' => turnAsset($asset),
                 'amount' => $amount,
                 'type' => 5,
                 'to_address' => $assetInfo->address,

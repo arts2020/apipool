@@ -349,3 +349,21 @@ if (!function_exists('priceCalc')) {
         return $res;
     }
 }
+
+
+/**
+ * 币种类型数据转换
+ */
+if (!function_exists('turnAsset')) {
+    function turnAsset($v)
+    {
+        $asset = [
+            'filecoin' =>'Filecoin',
+            'btc'=>'BTC',
+            'eth'=>'ETH',
+            'usdt'=>'USDT',
+        ];
+
+        return $asset[$v]??$v;
+    }
+}

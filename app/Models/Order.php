@@ -43,18 +43,20 @@ class Order extends Model
         'discount',
         'amount',
         'amount_cny',
-        'pay_at',
+        'state',
         'cancel_at',
         'cancel_reason',
         'type',
-        'state',
         'pay_state',
+        'pay_at',
         'verify_state',
         'verify_cancel_reason',
         'verify_at',
+        'verify_by',
         'created_by',
         'remark',
         'tx',
+        'source',
         'deleted_at'
     ];
 
