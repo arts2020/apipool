@@ -40,4 +40,12 @@ class UserAsset extends Model
         return $query->where('asset',$type);
     }
 
+    /**
+     * 获取账户的收益
+     * @return \Illuminate\Database\Eloquent\Relations\hasOne
+     */
+    public function profit()
+    {
+        return $this->hasOne(UserProfit::class, 'asset', 'asset');
+    }
 }

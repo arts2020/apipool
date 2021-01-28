@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\UserAsset;
@@ -65,12 +66,25 @@ class UserAssetRepository
 
     /**
      * 获取钱包地址
-     * @param $user_id
+     * @param $userid
      * @param $asset
      * @return mixed
      */
-    public function getAssetInfo($user_id,$asset)
+    public function getAssetInfo($userid, $asset)
     {
-        return $this->model->Userid($user_id)->Asset($asset)->where('address','<>','undefined')->first();
+        return $this->model->Userid($userid)->Asset($asset)->where('address', '<>', 'undefined')->first();
+    }
+
+    /**
+     * 获取钱包地址&&收益
+     * @param $userid
+     * @param $asset
+     * @return mixed
+     */
+    public function getAssetDetail($userid, $asset)
+    {
+        return $this->model->with(['profit' => function ($query) use ($userid) {
+            $query->Userid($userid);
+        }])->Userid($userid)->Asset($asset)->where('address', '<>', 'undefined')->first();
     }
 }
