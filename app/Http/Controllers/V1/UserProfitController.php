@@ -4,19 +4,23 @@ namespace App\Http\Controllers\V1;
 
 use App\Repositories\UserProfitRepository;
 use App\Repositories\ProductTypeRepository;
+use App\Repositories\UserProfitRecordRepository;
 use Illuminate\Http\Request;
 
 class UserProfitController extends ApiController
 {
     protected $profitRep;
     protected $typeRep;
+    protected $profitRecordRep;
 
     public function __construct(Request $request, UserProfitRepository $profitRepository,
-                                ProductTypeRepository $productTypeRepository)
+                                ProductTypeRepository $productTypeRepository,
+                                UserProfitRecordRepository $profitRecordRepository)
     {
         parent::__construct($request);
         $this->profitRep = $profitRepository;
         $this->typeRep = $productTypeRepository;
+        $this->profitRecordRep = $profitRecordRepository;
     }
 
     /**
@@ -65,7 +69,7 @@ class UserProfitController extends ApiController
             return $this->apiReturn(['code' => 100, 'msg' => '缺少参数分类']);
         }
 
-        $list = $this->profitRep->getProfitList($this->user_id,$asset);
+        $list = $this->profitRecordRep->getProfitList($this->user_id,$asset);
         return $this->success(compact('asset','list'));
 
     }
