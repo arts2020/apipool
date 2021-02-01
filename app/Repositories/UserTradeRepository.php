@@ -58,16 +58,26 @@ class UserTradeRepository
      * 获取收益列表
      * @param $asset
      */
-    public function getTradeList($user_id,$asset,$state = '')
+    public function getTradeList($user_id,$asset)
     {
         return $this->model
-            ->when(($state), function ($query) use ($state) {
-                return $query->State($state);
-            })
+            ->State(UserTrade::STATE_SUCCESS)
             ->Asset($asset)->Userid($user_id)
             ->get();
     }
 
+
+    /**
+     * 获取除提币外的交易记录
+     * @param $asset
+     */
+    public function getTradeListOther($user_id,$asset)
+    {
+        return $this->model
+            ->Asset($asset)->Userid($user_id)->State(UserTrade::STATE_SUCCESS)
+            ->NotType(UserTrade::TYPE_DRAW_COIN_PROFIT)
+            ->get();
+    }
 
     /**
      * 获取提币记录

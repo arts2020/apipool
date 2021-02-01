@@ -90,6 +90,11 @@ class UserCenterController extends ApiController
         if (!$imgurl || !$imgurl2) {
             return $this->apiReturn(['code' => 100, 'msg' => '参数不全']);
         }
+//        $str = 'static/image/safe';
+        $str = 'poolAssets/uploads/images';
+        if (strpos($imgurl,$str) == false || strpos($imgurl2,$str) == false) {
+            return $this->apiReturn(['code' => 100, 'msg' => '非法参数']);
+        }
 
         $userinfo = $this->userRep->getById($this->user_id);
 

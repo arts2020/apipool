@@ -367,3 +367,26 @@ if (!function_exists('turnAsset')) {
         return $asset[$v]??$v;
     }
 }
+
+
+/**
+ * curl Post
+ */
+if (!function_exists('curlLinkPost')) {
+    function curlLinkPost($url, $curl_post = [])
+    {
+        $ch = curl_init(); //初始化
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);  //post提交方式
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $curl_post);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+        $data = curl_exec($ch);
+        if (curl_errno($ch)) {
+            return json_encode(['code' => -1, 'msg' => '接口异常']);
+        }
+        return $data;
+    }
+}

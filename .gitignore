@@ -3,3 +3,4 @@
 .env
 /public/poolAssets
 /config/sms.php
+/config/link.php

@@ -93,9 +93,9 @@ class UserAssetController extends ApiController
         if (!$asset) {
             return $this->apiReturn(['code' => 100, 'msg' => '缺少参数分类']);
         }
-        $total = array_sum(array_pluck($this->tradeRep->getTradeList($this->user_id,$asset,1),'amount'));
+        $total = array_sum(array_pluck($this->tradeRep->getTradeList($this->user_id,$asset),'amount'));
         $total_cny = $total?turnCny($total):0;
-        $list = $this->tradeRep->getTradeList($this->user_id,$asset);
+        $list = $this->tradeRep->getTradeListOther($this->user_id,$asset);
         return $this->success(compact('total','total_cny','list'));
 
     }

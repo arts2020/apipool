@@ -30,7 +30,12 @@ class UserTrade extends Model
         'from_address',
         'to_address',
         'tx',
-        'state'
+        'state',
+        'verify_at',
+        'verify_by',
+        'verify_state',
+        'remark',
+        'fee'
     ];
 
     public static $stateMap = [
@@ -87,6 +92,17 @@ class UserTrade extends Model
     {
         return $query->where('type',$type);
     }
+
+    /**
+     * 限制查找交易类型的数据
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeNotType($query,$type)
+    {
+        return $query->where('type','<>',$type);
+    }
+
 
     /**
      * 动态格式化时间戳

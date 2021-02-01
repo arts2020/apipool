@@ -97,6 +97,13 @@ $app->group($pool, function () use ($app) {
         # ------------------ 提币 ------------------------
         $app->post('/coin', 'DrawCoinController@coin');
         $app->post('/getCoinList', 'DrawCoinController@getCoinList');
+
+        # ------------------ link ------------------------
+        $app->post('/link/sendTransaction', 'LinkServiceController@sendTransaction');
+        $app->post('/link/getBalance', 'LinkServiceController@getBalance');
+        $app->post('/link/privateWallter', 'LinkServiceController@privateWallter');
+        $app->post('/link/mnemonicWallter', 'LinkServiceController@mnemonicWallter');
+        $app->post('/link/getWalletValidateAddress', 'LinkServiceController@getWalletValidateAddress');
     });
 
 });
