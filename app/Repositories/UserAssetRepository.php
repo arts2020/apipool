@@ -70,7 +70,7 @@ class UserAssetRepository
      * @param $asset
      * @return mixed
      */
-    public function getAssetInfo($userid, $asset)
+    public function getAssetInfo($userid, $asset = 'filecoin')
     {
         return $this->model->Userid($userid)->Asset($asset)->where('address', '<>', 'undefined')->first();
     }
