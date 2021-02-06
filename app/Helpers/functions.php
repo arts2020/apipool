@@ -381,7 +381,7 @@ if (!function_exists('curlLinkPost')) {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);  //post提交方式
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $curl_post);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($curl_post));
         curl_setopt($ch, CURLOPT_TIMEOUT, 4);
         $data = curl_exec($ch);
         if (curl_errno($ch)) {

@@ -87,6 +87,7 @@ class UserTradeRepository
     {
         return $this->model
             ->Asset($asset)->Userid($user_id)->Type(UserTrade::TYPE_DRAW_COIN_PROFIT)
+            ->latest('created_at')
             ->get();
     }
 }

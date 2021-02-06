@@ -36,10 +36,10 @@ class UserAssetController extends ApiController
         if( !is_numeric($amount) ){
             return $this->apiReturn(['code' => 100, 'msg' => '参数错误']);
         }
-
         //查询用户是否已存在该类型数据
         $userid = $this->user_id;
         $assetInfo = $this->assetRep->getAssetInfo($userid,$asset);
+        $asset = turnAsset($asset);
         $data = compact('userid','asset','address','amount');
         if($assetInfo){
             $res = $this->assetRep->savePost($assetInfo,$data);
