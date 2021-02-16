@@ -84,4 +84,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         return self::$verifyStateMap[$this->attributes['verify_state']];
     }
+
+    /**
+     * 获取矿工信息
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function miner()
+    {
+        return $this->belongsTo(Miner::class, 'miner_id', 'id');
+    }
 }

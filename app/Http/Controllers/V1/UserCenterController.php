@@ -52,6 +52,9 @@ class UserCenterController extends ApiController
         if ($userinfo['user_state'] == 2)
             return $this->fail(100, "该用户已被禁用,请核实");
 
+        $userinfo['miner_number'] = $userinfo->miner?$userinfo->miner->number:'';
+        unset($userinfo['miner']);
+
         return $this->success($userinfo);
     }
 

@@ -123,7 +123,8 @@ class LoginController extends ApiController
                     'devdes' => $userinfo['devdes'],
                     'appversion' => $userinfo['appversion'],
                     'sysinfo'  => json_decode($userinfo['sysinfo']),
-                    'datetime' => now()->toDateTimeString()
+                    'datetime' => now()->toDateTimeString(),
+                    'miner_number'=>$userinfo->miner?$userinfo->miner->number:'',
                 ];
 
                 return $this->success($returnData);
@@ -207,7 +208,8 @@ class LoginController extends ApiController
             'devdes' => $userinfo['devdes'],
             'appversion' => $userinfo['appversion'],
             'sysinfo' => json_decode($userinfo['sysinfo']),
-            'datetime' => now()->toDateTimeString()
+            'datetime' => now()->toDateTimeString(),
+            'miner_number'=>$userinfo->miner?$userinfo->miner->number:'',
         ];
 
         return $this->success($returnData);

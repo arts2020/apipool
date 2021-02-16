@@ -39,7 +39,7 @@ class DrawCoinController extends ApiController
 
         if ($assetInfo) {
             if($assetInfo->profit){
-                if($amount > $assetInfo->profit->withdrawal_amount || $amount < 0.01){
+                if($amount > $assetInfo->profit->withdrawal_amount || $amount <= 0.01){
                     return $this->apiReturn(['code' => 100, 'msg' => '可提币数量不足，请核实！']);
                 }
                 $res = DB::transaction(function () use ($request, $asset,$amount,$assetInfo) {
