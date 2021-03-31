@@ -105,6 +105,17 @@ class UserTrade extends Model
 
 
     /**
+     * 限制查找交易类型的数据
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeNotState($query,$state)
+    {
+        return $query->where('state','<>',$state);
+    }
+
+
+    /**
      * 动态格式化时间戳
      */
     public function getCreatedAtAttribute()

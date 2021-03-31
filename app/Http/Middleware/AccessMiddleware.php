@@ -22,12 +22,13 @@ class AccessMiddleware
     public function handle($request, Closure $next)
     {
         $token = $request->input('token');
+//        file_put_contents('token.log', print_r([date('Y-m-d H:i:s'), __LINE__, __METHOD__, $token], true),FILE_APPEND);
         if($token){
             $baseModel = new Base();
             $sessionData = $baseModel->get($token);
 
             if(intval($sessionData['userid']) == 0){
-                return response()->json(['code'=>-100,'msg'=>'token错误']);
+                return response()->json(['code'=>9,'msg'=>'token错误']);
             }
         }else{
             return response()->json(['code'=>100,'msg'=>'缺少token']);

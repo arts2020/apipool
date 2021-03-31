@@ -73,7 +73,7 @@ class LoginController extends ApiController
                 return $this->fail(100, "该用户已经注册过");
 
             if ($userinfo['user_state'] == 2)
-                return $this->fail(100, "该用户已被禁用,请核实");
+                return $this->fail(100, "该用户账号信息有误,请核实");
 
             $smslog = $this->smsLogRep->getByAttr([['phone', '=', $username], ['verify_code', '=', $captcha], ['sms_type', '=', 65]]);
 
@@ -125,6 +125,7 @@ class LoginController extends ApiController
                     'sysinfo'  => json_decode($userinfo['sysinfo']),
                     'datetime' => now()->toDateTimeString(),
                     'miner_number'=>$userinfo->miner?$userinfo->miner->number:'',
+                    'phone' => $username,
                 ];
 
                 return $this->success($returnData);
@@ -179,6 +180,9 @@ class LoginController extends ApiController
         if(!Hash::check($password, $userinfo['password'])){
             return $this->fail(100, "手机号或密码错误");
         }
+
+        if ($userinfo['user_state'] == 2)
+            return $this->fail(100, "该用户账号信息有误,请核实");
 
         //记录登录日志
         $token = genToken();

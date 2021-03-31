@@ -72,7 +72,7 @@ if (!function_exists('curlPost')) {
         curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);  //post提交方式
         curl_setopt($ch, CURLOPT_POSTFIELDS, $curl_post);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         $data = curl_exec($ch);
         if (curl_errno($ch)) {
             return json_encode(['code' => -1, 'msg' => '接口异常']);

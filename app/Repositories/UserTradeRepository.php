@@ -74,7 +74,7 @@ class UserTradeRepository
     public function getTradeListOther($user_id,$asset)
     {
         return $this->model
-            ->Asset($asset)->Userid($user_id)->State(UserTrade::STATE_SUCCESS)
+            ->Asset($asset)->Userid($user_id)->NotState(UserTrade::STATE_FAIL)
             ->NotType(UserTrade::TYPE_DRAW_COIN_PROFIT)
             ->get();
     }
